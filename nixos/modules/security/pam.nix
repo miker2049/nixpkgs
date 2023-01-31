@@ -533,9 +533,6 @@ let
           (let yubi = config.security.pam.yubico; in optionalString cfg.yubicoAuth ''
             auth ${yubi.control} ${pkgs.yubico-pam}/lib/security/pam_yubico.so mode=${toString yubi.mode} ${optionalString (yubi.challengeResponsePath != null) "chalresp_path=${yubi.challengeResponsePath}"} ${optionalString (yubi.mode == "client") "id=${toString yubi.id}"} ${optionalString yubi.debug "debug"}
           '') +
-          optionalString cfg.fprintAuth ''
-            auth sufficient ${pkgs.fprintd}/lib/security/pam_fprintd.so
-          '' +
           # Modules in this block require having the password set in PAM_AUTHTOK.
           # pam_unix is marked as 'sufficient' on NixOS which means nothing will run
           # after it succeeds. Certain modules need to run after pam_unix
@@ -586,6 +583,9 @@ let
             )) +
           optionalString cfg.unixAuth ''
             auth sufficient pam_unix.so ${optionalString cfg.allowNullPassword "nullok"} ${optionalString cfg.nodelay "nodelay"} likeauth try_first_pass
+          '' +
+                    optionalString cfg.fprintAuth ''
+            auth sufficient ${pkgs.fprintd}/lib/security/pam_fprintd.so
           '' +
           optionalString cfg.otpwAuth ''
             auth sufficient ${pkgs.otpw}/lib/security/pam_otpw.so
